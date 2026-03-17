@@ -23,15 +23,17 @@ st.set_page_config(
 # BARRE LATÉRALE (SIDEBAR) - NAVIGATION
 # ==========================================
 
-
 # Construction du chemin absolu de manière dynamique
 image_folder = Path(__file__).parent / "props"
-
 try:
-    logo = Image.open(image_folder / "logo.JPG")
-    st.sidebar.image(logo, use_container_width=True)
+    # 1. On met ".jpg" en minuscules pour faire plaisir à Linux
+    logo = Image.open(image_folder / "logo.jpg") 
+    # 2. On utilise width="stretch" pour faire plaisir à la nouvelle mise à jour de Streamlit
+    st.sidebar.image(logo, width="stretch") 
+    
 except FileNotFoundError:
-    st.sidebar.warning("Logo non trouvé. Vérifiez le dossier 'props'.")
+    st.sidebar.warning("Logo non trouvé. Vérifiez le dossier 'props' et l'extension (.jpg ou .png).")
+
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 📌 Navigation")
@@ -165,7 +167,8 @@ df_feries = pd.DataFrame(feries_in_range) if feries_in_range else pd.DataFrame(c
 df_points_exceptionnels = st.data_editor(
     df_feries, 
     num_rows="dynamic", 
-    use_container_width=True,
+    #use_container_width=True,
+    width="stretch", 
     column_config={
         "Date": st.column_config.DateColumn("Date", format="DD/MM/YYYY", required=True),
         "Description": st.column_config.TextColumn("Description"),
