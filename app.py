@@ -5,6 +5,9 @@ import holidays
 import datetime
 import math
 import io
+from pathlib import Path    
+from PIL import Image
+
 
 # ==========================================
 # CONFIGURATION DE LA PAGE
@@ -19,7 +22,17 @@ st.set_page_config(
 # ==========================================
 # BARRE LATÉRALE (SIDEBAR) - NAVIGATION
 # ==========================================
-st.sidebar.image("props/logo.JPG", use_container_width=True)
+
+
+# Construction du chemin absolu de manière dynamique
+image_folder = Path(__file__).parent / "props"
+
+try:
+    logo = Image.open(image_folder / "logo.JPG")
+    st.sidebar.image(logo, use_container_width=True)
+except FileNotFoundError:
+    st.sidebar.warning("Logo non trouvé. Vérifiez le dossier 'props'.")
+
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 📌 Navigation")
 st.sidebar.markdown("""
