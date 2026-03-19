@@ -192,7 +192,7 @@ if noms_liste:
     })
     
     df_historique_et_contraintes = st.data_editor(
-        df_init, hide_index=True, use_container_width=True,
+        df_init, hide_index=True, width='stretch',
         column_config={
             "Médecin": st.column_config.TextColumn("Médecin", disabled=True),
             "Points initiaux": st.column_config.NumberColumn("Points précédents", step=0.5),
@@ -205,7 +205,7 @@ if noms_liste:
 # ==========================================
 st.header("🚀 5. Génération du Tableau", anchor="5-g-n-ration-du-tableau")
 
-if st.button("✨ GÉNÉRER LE PLANNING ÉQUITABLE", type="primary", use_container_width=True):
+if st.button("✨ GÉNÉRER LE PLANNING ÉQUITABLE", type="primary", width='stretch'):
     if not noms_liste:
         st.error("Veuillez entrer au moins un nom de médecin.")
     elif doublons:  # <--- LE NOUVEAU BOUCLIER EST ICI
@@ -352,6 +352,43 @@ if st.button("✨ GÉNÉRER LE PLANNING ÉQUITABLE", type="primary", use_contain
             df_planning.fillna('', inplace=True)
             df_planning.index.name = 'Jour du mois'
 
+            # =========================================================
+            # NOUVEAU : FONCTION DE COLORATION (Styler)
+            # =========================================================
+            def coloriser_cellules(df_pivot):
+                # Crée un tableau vide de la même forme pour stocker les styles CSS
+                styles = pd.DataFrame('', index=df_pivot.index, columns=df_pivot.columns)
+                
+                # On parcourt les dates réelles pour savoir qui est quoi
+                for d in dates:
+                    jour = d.day
+                    mois = d.strftime('%Y-%m')
+                    date_str = d.strftime('%Y-%m-%d')
+                    
+                    est_special = (d in tn_holidays) or (date_str in points_exceptionnels)
+                    est_weekend = d.weekday() in [5, 6] # 5 = Samedi, 6 = Dimanche
+                    
+                    # Hiérarchie des couleurs avec texte noir forcé pour la lisibilité
+                    if est_special:
+                        # Vert doux avec texte noir
+                        couleur = 'background-color: #a8e6cf; color: #000000;' 
+                    elif est_weekend:
+                        # Bleu ciel avec texte noir
+                        couleur = 'background-color: #bae1ff; color: #000000;' 
+                    else:
+                        couleur = ''
+                        
+                    # Si une couleur est définie, on l'applique à toutes les colonnes de ce jour
+                    if couleur:
+                        for secteur in noms_des_secteurs:
+                            if (mois, secteur) in styles.columns:
+                                styles.loc[jour, (mois, secteur)] = couleur
+                return styles
+
+            # On applique la coloration à notre tableau
+            df_planning_colore = df_planning.style.apply(coloriser_cellules, axis=None)
+            # =========================================================
+
             data_recap = []
             for med, data in compteurs.items():
                 data_recap.append({
@@ -369,15 +406,17 @@ if st.button("✨ GÉNÉRER LE PLANNING ÉQUITABLE", type="primary", use_contain
             st.balloons()
             
             st.subheader("🗓️ Tableau de Garde")
-            st.dataframe(df_planning, use_container_width=True)
+            # On affiche la version colorée dans Streamlit
+            st.dataframe(df_planning_colore, width='stretch') 
             
             st.subheader("📊 Tableau Récapitulatif")
-            st.dataframe(df_recap, use_container_width=True)
+            st.dataframe(df_recap, width='stretch')
 
             # --- GÉNÉRATION DU FICHIER EXCEL EN MÉMOIRE ---
             buffer = io.BytesIO()
             with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-                df_planning.to_excel(writer, sheet_name='Planning')
+                # On exporte la version colorée vers Excel !
+                df_planning_colore.to_excel(writer, sheet_name='Planning')
                 df_recap.to_excel(writer, sheet_name='Récapitulatif')
             
             st.markdown("---")
@@ -387,5 +426,5 @@ if st.button("✨ GÉNÉRER LE PLANNING ÉQUITABLE", type="primary", use_contain
                 file_name=f"Tableau_Garde_MedicalStats_{date_debut.strftime('%b_%Y')}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 type="primary",
-                use_container_width=True
+                width='stretch'
             )
