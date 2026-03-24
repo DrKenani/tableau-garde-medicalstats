@@ -69,8 +69,7 @@ with col1:
 
 with col2:
     st.info("📺 **Guide d'utilisation**")
-    st.markdown("*(La vidéo tutoriel sera bientôt disponible ici pour vous guider pas à pas)*")
-    st.link_button("🌐 Visionnez la vidéo TUTO", "https://www.facebook.com/share/v/1GcNJaAzM1/", type="primary")
+    st.link_button("🎥 Visionnez la vidéo TUTO", "https://www.facebook.com/share/v/1GcNJaAzM1/", type="primary")
 
 st.markdown("---")
 
