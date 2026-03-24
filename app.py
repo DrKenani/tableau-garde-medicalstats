@@ -27,7 +27,7 @@ st.set_page_config(
 image_folder = Path(__file__).parent / "props"
 try:
     # 1. On met ".jpg" en minuscules pour faire plaisir à Linux
-    logo = Image.open(image_folder / "logo.jpg") 
+    logo = Image.open(image_folder / "logo.png") 
     # 2. On utilise width="stretch" pour faire plaisir à la nouvelle mise à jour de Streamlit
     st.sidebar.image(logo, width="stretch") 
     
@@ -70,6 +70,7 @@ with col1:
 with col2:
     st.info("📺 **Guide d'utilisation**")
     st.markdown("*(La vidéo tutoriel sera bientôt disponible ici pour vous guider pas à pas)*")
+    st.link_button("🌐 Visionnez la vidéo TUTO", "https://www.facebook.com/share/v/1GcNJaAzM1/", type="primary")
 
 st.markdown("---")
 
